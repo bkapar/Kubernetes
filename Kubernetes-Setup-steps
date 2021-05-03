@@ -224,5 +224,21 @@ kubectl get nodes
 NAME     STATUS   ROLES    AGE   VERSION
 master   Ready    master   26m   v1.18.2
 worker   Ready    <none>   63s   v1.18.2
+==============================================
+If you get message as following after Reboot the Ubuntu then do following ..
+vagrant@master:~$ kubectl get nodes
+The connection to the server 100.0.0.1:6443 was refused - did you specify the right host or port?
+vagrant@master:~$
 
+swapoff -a
+exit
+strace -eopenat kubectl version
+
+and you can type kubectl get nodes again.
+
+vagrant@master:~$ kubectl get nodes
+NAME     STATUS   ROLES                  AGE   VERSION
+master   Ready    control-plane,master   22h   v1.21.0
+worker   Ready    <none>                 19h   v1.21.0
+vagrant@master:~$ 
 
