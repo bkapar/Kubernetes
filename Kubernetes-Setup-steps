@@ -96,10 +96,7 @@ docker.service - Docker Application Container Engine
      Docs: https://docs.docker.com
 
  Step 4 - Disable the firewall and turnoff the “swapping”
-
 sudo ufw disable
-Firewall stopped and disabled on system startup
-
 sudo swapoff -a
 
 Step 5 - Install “apt-transport-https” package
