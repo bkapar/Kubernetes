@@ -56,8 +56,8 @@ vagrant ssh master
 Add host entry for master as well as worker node
 sudo vi /etc/hosts
 
-100.0.0.1 master.jhooq.com master
-100.0.0.2 worker.jhooq.com worker
+100.0.0.1 master.com master
+100.0.0.2 worker.com worker
 
 worker node - SSH into the master node
 
@@ -66,8 +66,8 @@ vagrant ssh worker
  Add host entry for master as well as worker node
 sudo vi /etc/hosts
 
-100.0.0.1 master.jhooq.com master
-100.0.0.2 worker.jhooq.com worker
+100.0.0.1 master.com master
+100.0.0.2 worker.com worker
 
  Ping from each other
 ping worker/master
