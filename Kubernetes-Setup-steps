@@ -242,3 +242,16 @@ master   Ready    control-plane,master   22h   v1.21.0
 worker   Ready    <none>                 19h   v1.21.0
 vagrant@master:~$ 
 
+OR
+Make a script auto start master node after reboot :
+vi /etc/rc.local
+
+Copy and paste:
+#!/bin/bash
+swapoff -a
+systemctl start kubelet
+docker start (docker ps -a -q)
+docker start (docker ps -a -q)
+
+Change mode:
+chmod +x /etc/rc.local
