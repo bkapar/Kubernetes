@@ -240,6 +240,8 @@ worker   Ready    <none>                 19h   v1.21.0
 vagrant@master:~$ 
 
 OR
+=> Troubleshoot steps 
+
 Make a script auto start master node after reboot :
 vi /etc/rc.local
 
@@ -252,3 +254,10 @@ docker start (docker ps -a -q)
 
 Change mode:
 chmod +x /etc/rc.local
+
+NotReady status on a node can be caused due to multiple reasons::
+
+The node kubelet service has stopped running.
+The container runtime(Docker) has stopped running.
+The node VM is no longer available.
+Resource contention on the Nodes.
