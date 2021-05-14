@@ -60,7 +60,6 @@ sudo vi /etc/hosts
 100.0.0.2 worker.com worker
 
 worker node - SSH into the master node
-
 vagrant ssh worker
 
  Add host entry for master as well as worker node
@@ -76,18 +75,14 @@ ping worker/master
 
 Step 3 - Install Docker on both master and worker node
 You need to install Docker on both the node.
+
 sudo apt-get update
-
 sudo apt install docker.io
-
- Enable and start docker
 sudo systemctl enable docker
 
 Created symlink /etc/systemd/system/multi-user.target.wants/docker.service → /lib/systemd/system/docker.service.
 
 sudo systemctl start  docker
-
- Check the docker service status
 sudo systemctl status docker
 
 docker.service - Docker Application Container Engine
