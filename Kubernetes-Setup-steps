@@ -76,14 +76,12 @@ ping worker/master
 Step 3 - Install Docker on both master and worker node
 You need to install Docker on both the node.
 
-sudo apt-get update
-sudo apt install docker.io
+sudo apt-get update; sudo apt install docker.io -y
 sudo systemctl enable docker
 
 Created symlink /etc/systemd/system/multi-user.target.wants/docker.service → /lib/systemd/system/docker.service.
 
-sudo systemctl start  docker
-sudo systemctl status docker
+sudo systemctl start  docker; sudo systemctl status docker
 
 docker.service - Docker Application Container Engine
    Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)
@@ -91,8 +89,7 @@ docker.service - Docker Application Container Engine
      Docs: https://docs.docker.com
 
  Step 4 - Disable the firewall and turnoff the “swapping”
-sudo ufw disable
-sudo swapoff -a
+sudo ufw disable;sudo swapoff -a
 
 Step 5 - Install “apt-transport-https” package
 
