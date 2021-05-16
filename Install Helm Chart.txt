@@ -1,0 +1,275 @@
+Steps brief -
+1.Provision the VMs using Vagrant
+2.Update /etc/hosts on all the nodes
+3.Generate SSH key for ansible (only need to run on ansible node .i.e. amaster)
+4.Copy SSH key to other nodes .i.e. – kmaster, kworker
+5.Install python3-pip (only need to run on ansible node .i.e. amaster)
+6.Clone the kubespray git repo (only need to run on ansible node .i.e. amaster)
+7.Install kubespray package from “requirement.txt” (only need to run on ansible node .i.e. amaster)
+8.Copy inventory file to current users (only need to run on ansible node .i.e. amaster)
+9.Prepare host.yml for kubespray (only need to run on ansible node .i.e. amaster)
+10.Run the ansible-playbook on ansible node .i.e. – amaster (only need to run on ansible node .i.e. amaster)
+11.Install kubectl on kubernetes master .i.e. – kmaster (only need to run on kuebernets node .i.e. kmaster)
+12.Verify the kubernetes nodes
+
+
+1. Install Helm Chart
+Installing the Helm Chart pretty easy but there is a pre-requisite of setting up Kubernetes Cluster.
+
+1.1: Install Helm Chart Using Script
+
+If you like doing everything from scratch then I would suggest you to install the Helm Chart Using script.
+Run the following scripts -
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+chmod 700 get_helm.sh
+
+./get_helm.sh
+
+Verify the Installation -
+helm version
+--version.BuildInfo{Version:"v3.4.0", GitCommit  ...
+
+1.2: Install Helm Chart Using Binary
+The other option would be to download the complete binary and do the installation be yourself
+
+Step 1 : Download the Binary
+
+Step 2 : Extract the binary using the command
+tar -zxvf helm-vxxx-xxxx-xxxx.tar.gz
+
+Step 3 : Move it to
+mv linux-amd64/helm /usr/local/bin/helm
+
+Verify the Installation 
+
+helm version
+
+1.3: Install Helm Chart with package Manager
+If you like package manager then you use the following install command based on your preference -
+brew install helm
+Chocolatey => choco install kubernetes-helm
+OR
+Scoop => scoop install helm
+OR
+GoFish => gofish install helm
+Snap => sudo snap install helm --classic
+
+2. Now after you have done your Helm Chart installation, we can write our first “Hello World” Helm Chart.
+
+
+2.1. We are going to create our first helloworld Helm Chart using the following command
+
+helm create helloworld
+
+It should create a directory helloworld, you can verify it by using the following ls -lart command
+
+ls -lart | grep helloworld
+
+It should return you with -
+
+drwxr-xr-x 4 vagrant vagrant     4096 Nov  7 19:57 helloworld
+
+To Verify the directory of the HelmChart
+tree helloworld 
+
+helloworld
+├── charts
+├── Chart.yaml
+├── templates
+│  ├── deployment.yaml
+│  ├── _helpers.tpl
+│  ├── hpa.yaml
+│  ├── ingress.yaml
+│  ├── NOTES.txt
+│  ├── serviceaccount.yaml
+│  ├── service.yaml
+│  └── tests
+│      └── test-connection.yaml
+└── values.yaml
+
+Great now you created your first Helm Chart - helloworld.
+
+2.2: Update the service.type from ClusterIP to NodePort inside the values.yml
+Before you run your helloworld Helm Chart we need to update the service.type from ClusterIP to NodePort.
+
+To update the values.yml, first go inside the directory helloworld
+
+cd helloworld
+
+2.2.1: Open values.yml in vi
+
+vi values.yaml 
+
+2.2.2: Update service.type from ClusterIP to NodePort
+Look for the service.type block and update its value to NodePort
+
+service:
+  type: NodePort
+  port: 80
+
+2.3: Install the Helm Chart using command - helm install
+
+Note : The helm install command take two arguments -
+
+First argument - Release name that you pick
+Second argument - Chart you want to install
+It should look like -
+
+helm install <FIRST_ARGUMENT_RELEASE_NAME> <SECOND_ARGUMENT_CHART_NAME>
+EX,
+helm install myhelloworld helloworld
+After running the above command it should return you with -
+
+NAME: myhellworld
+LAST DEPLOYED: Sat Nov  7 21:48:08 2020
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export NODE_PORT=$(kubectl get --namespace default -o jsonpa.. ..........   ...
+  
+2.4: Verify the helm install command
+helm list -a
+
+It should return you withe release name which you have just installed .i.e. myhelloworld
+
+NAME       	NAMESPACE	REVISION	UPDATED                              	STATUS  	CHART           	APP VERSION
+myhelloworld	default  	1       	2020-11-07 21:48:08.8550677 +0000 UTC	deployed	helloworld-0.1.0	1.16.0
+
+
+2.5: Get kubernetes Service details and port
+kubectl get service
+
+nd the above command should return you -
+
+NAME                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+kubernetes               ClusterIP   10.233.0.1      <none>        443/TCP        14d
+myhellworld-helloworld   NodePort    10.233.14.134   <none>        80:30738/TCP   7m10s
+ 
+Note: Keep in mind the NodePort number can vary in the range 30000-32767, so you might get different NodePort.
+
+Since my cluster ip is 100.0.0.2 and NodePort is 30738, so I can access my Nginx page of my myhelloworld Helm Chart
+Open browser and type ip as 100.0.0.2:3078
+
+3. Helm: Adding upstream repositories
+For Example - You want to deploy Redis in-memory cache inside your kubernetes cluster from Helm repository, so you can simply run the following command -
+
+helm install redis bitnami/redis
+
+3.1 How to ADD upstream Helm chart repository
+There are five repo commands provided by Helm which can be used for add,list,remove,update,index the chart repository.
+
+add : Add chart repository
+list : List chart repository
+update : Update the chart information locally
+index : For generating the index file
+remove : Remove chart repository
+3.1.1: ‘add’ Helm Chart repository
+To add any chart repository you should know the name and repository url.
+
+Example - We are going to add bitnami repository.
+
+So our command should look like
+
+helm repo add <REPOSITORY_NAME> <REPOSITORY_URL>
+BASH
+Here is the final command
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+Verify the repository
+helm search repo bitnami
+BASH
+It should return you back with all the charts which are available inside bitnami repository
+
+NAME                            	CHART VERSION	APP VERSION  	DESCRIPTION                                       
+bitnami/bitnami-common          	0.0.8        	0.0.8        	Chart with custom templates used in Bitnami cha...
+bitnami/airflow                 	6.7.1        	1.10.12      	Apache Airflow is a platform to programmaticall...
+bitnami/apache                  	7.6.0        	2.4.46       	Chart for Apache HTTP Server    
+
+3.1.2: ‘list’ Helm Chart repository
+In the previous step we have added the bitnami repository, lets run the list command for listing the repositories we have added so far.
+
+helm repo list
+BASH
+It should return you back with
+
+NAME   	URL                               
+bitnami	https://charts.bitnami.com/bitnami
+BASH
+
+3.1.3: ‘update’ Helm Chart repository
+Here is the command to update Helm repository
+
+helm repo update
+BASH
+Once your update has completed you should see following message on your console
+
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+BASH
+
+3.1.4: ‘index’ Helm Chart repository
+The index command can be used for generating the index file of given directory which contains the packaged charts.
+
+So in our case we have created a chart named helloworld, now we are going to create index.yaml for it.
+
+Run the following command -
+
+helm repo index helloworld
+BASH
+The above command should create index.yaml inside your packaged charts directory.
+
+cat helloworld/index.yaml 
+BASH
+apiVersion: v1
+entries: {}
+generated: "2020-11-08T10:28:18.544761158Z"
+BASH
+
+3.1.5: ‘remove’ Helm Chart repository
+If in case you want to remove certain repositories then Helm provides remove command which can be used for removing the repositories.
+
+In the previous steps we have added bitnami repositories, so now we are going to remove the same repositories using the remove command
+
+helm repo remove bitnami
+After the successful removal you should see the following message
+
+"bitnami" has been removed from your repositories 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
