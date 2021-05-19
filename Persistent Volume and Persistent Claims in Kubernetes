@@ -1,0 +1,113 @@
+
+How to use Persistent Volume and Persistent Claims in Kubernetes
+Kubernetes Persistent Volume and Persistent claims help you to retain the data of the pod even after the end of the pod life cycle
+
+What problems does it solve?
+Containers running inside the pod can not share the files with each other.
+
+All the files inside the container are temporary which means if you terminate the container you are going to lose all your files.
+Secondly if in any case, your container crashes then there is no way to recover files.
+
+Step 1- Prerequisites
+Kubernetes Cluster: - You should have Kubernetes cluster up and running (If you do not know “How to setup then please refer to this article)
+Docker Image/container: - A docker image that can be deployed as Kubernetes deployment. (I am going to use Spring Boot Docker image. If you do not have then please refer on how to create docker image you can follow this article)
+Directory for persistent Volume storage:- Create one directory .i.e. /home/vagrant/storage inside your Linux machine for persistent volume. You can keep the directory name and path as per your need
+
+Step 2 - Create a persistent volume configuration (bkapar-pv.yml)
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: bkapar-demo-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /home/vagrant/storage
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - node1
+          
+Step 3 - Apply the configuration
+kubectl apply -f bkapar-pv.yml
+persistentvolume/bkapar-demo-pv created
+
+Step 4 - Lets check the status of PV
+kubectl get pv
+BASH
+NAME            CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS    REASON   AGE
+bkapar-demo-pv   1Gi        RWO            Retain           Available           local-storage            9s
+
+How to use Persistent Volume claim(PVC) ?
+vim bkapar-pvc.yml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bkapar-pvc
+spec:
+  volumeName: bkapar-demo-pv
+  storageClassName: local-storage
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+      
+Step 2 - Now apply this configuration using the following command
+kubectl create -f bkapar-pvc.yml
+
+kubectl get pvc
+BASH
+vagrant@kmaster:~$ kubectl get pvc
+NAME        STATUS   VOLUME          CAPACITY   ACCESS MODES   STORAGECLASS    AGE
+bkapar-pvc   Bound    bkapar-demo-pv   1Gi        RWO            local-storage   17h
+
+Step 1 - Create POD configuration yml .i.e. - “bkapar-pod.yml”
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bkapar-pod-with-pvc
+  labels:
+    name: bkapar-pod-with-pvc
+spec:
+  containers:
+  - name: bkapar-pod-with-pvc
+    image: rahulwagh17/kubernetes:jhooq-k8s-springboot
+    ports:
+      - containerPort: 8080
+        name: www
+    volumeMounts:
+      - name: www-persistent-storage
+        mountPath: /home/vagrant/storage
+  volumes:
+    - name: www-persistent-storage
+      persistentVolumeClaim:
+        claimName: bkapar-pvc
+
+Step 2 : Lets apply the pod configuration
+kubectl apply -f jhooq-pod.yml
+BASH
+pod/jhooq-pod-with-pvc created
+
+kubectl get pod
+BASH
+NAME                 READY   STATUS    RESTARTS   AGE
+jhooq-pod-with-pvc   1/1     Running   0          8m37s
+
+kubectl get pod -o wide
+
+
+
+curl 10.233.90.3:8080/hello
+Hello - Jhooq-k8s
