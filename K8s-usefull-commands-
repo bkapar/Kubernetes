@@ -1,0 +1,106 @@
+# Get commands with basic output
+kubectl get services                          # List all services in the namespace
+kubectl get pods --all-namespaces             # List all pods in all namespaces
+kubectl get pods -o wide                      # List all pods in the current namespace, with more details
+kubectl get deployment my-dep                 # List a particular deployment
+kubectl get pods                              # List all pods in the namespace
+kubectl get pod my-pod -o yaml                # Get a pod's YAML
+
+# Describe commands with verbose output
+kubectl describe nodes my-node
+kubectl describe pods my-pod
+
+ kubectl explain -h  --> To get help
+kubectl explain ns  --> explain about name spaces
+kubectl explain pod.spec  --> 
+kubectl explain pod.spec.container
+ kubectl logs heloo-pod -n=bkapar  --> Logs for pod with specific Namespaces 
+ kubectl delete pod heloo-pod  --> Delete pod
+ kubectl get pods -n=bkapar  --> Get info about namespaces pods
+ kubectl get pods -o wide -n=bkapar  --> To see IPs and details 
+ kubectl exec -it heloo-pod /bin/bash -n=bkapar
+ kubectl get pods -o wide -n=bkapar
+ curl http://10.244.1.35  
+kubectl delete pod hello-rc-qsl5s --grace-period=0 --force -n=bkapar  --> To delete pods forcefully
+Deployment
+kubectl create deployment my-dep --image=scmgalaxy/nginx-dep -n=bkapar --> Create deployment
+kubectl edit deploy my-dep -n=bkapar  --> Edit replicas pods
+kubectl create deployment my-dep --image=scmgalaxy/nginx-devopsschoo1v1
+kubectl scale --replicas=10 deployment/mydep
+kubectl rollout status deploy/my-dep
+kubectl rollout history deploy/my-dep
+kubectl rollout undo deploy/my-dep --to-revision=1  --> For Roll back 
+
+
+
+Examples: kubectl scale -h --> to get help
+  # Scale a replicaset named 'foo' to 3.
+  kubectl scale --replicas=3 rs/foo
+kubectl scale --replicas=4 deployment/my-dep -n=bkapar --> increase the pod
+kubectl scale --replicas=2 deployment/my-dep -n=bkapar   --> Decrease the pods
+kubectl rollout history deployment/my-dep -n=bkapar --> To check deployment version 
+kubectl edit deploy my-dep -n=bkapar -> To edit the images version like v1 to v2
+
+My Solution that worked is :
+ kubeadm init
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+kubectl cluster-info
+
+bkapar@master:~# helm lint helloworld/
+==> Linting helloworld/
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+root@master:~# 
+helm install --set replicaCount=2 hellowword  --> To increase repliCount from command line
+root@master:~# helm delete hellowword-1-helloworld 
+root@master:~# helm delete hellowword-1   --> To delete helm chart
+release "hellowword-1" uninstalled
+
+Pass Environment variable into Helm Chat
+helm install --set replicaCount=2  --set replicaCount=3 helloworldrelease helloworld
+kubectl cp pod.yml hello=pod:/tmp -n=bakapar  --> To copy pod in specific name space
+kubectl cp -h  --> To get help about cp
+kubectl auth can-i delete --> To check if you have permission to delete  or not 
+kubectl auth can-i create deploy  --> To check if you have access to create deployment or not 
+#Troubleshooting and Debugging Commands: 
+describe --> show details of a specific resources and groups 
+kubectl explain rc.spec or kubectl explain rc.spec.template or kubectl explain node.spec.taints  --> To get help and detail about kubernetes containt 
+kubectl edit deploy my-dep -> To edit the replica set
+  # Scale a replicaset named 'foo' to 3.
+  kubectl scale --replicas=3 rs/foo
+
+Master Control Plane: 
+API Server --> POD --> Container --> Docker Image --> DockerHub
+Etcd 
+Controller Mgr
+Scheduler
+Kube Proxy
+Kubelet
+Kubectl 
+Docker 
+Kubeadm Init
+Worker Node side: 
+Kubelet 
+Docker
+Kubectl 
+Kube proxy
+kubeadm  Join .. 
+
+#Deployment
+Features of Deployment 
+	Replication + Controller
+	 -Rollout new version of image
+	-Versioning -In build
+	-Roll back
+if you want deploymultiple pods in k8s - deployment
+#How to get POD
+Pod, RC, RS, Deployment, 
+DaemonSets,  --> It deploy max & at least 1 POD in every Node
+			-- kube-proxy and Weavenet
+Statefulsets  --> Can deploy pod like deployment but POD name has certain pattern
+			- ONE pod get attached to ONE storage and always remember
+			- Always create a seq and Always Delete in a Seq
+where STATELESS mean Apache, tomcat and STATEFUL means Databases .. storage
