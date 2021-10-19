@@ -121,8 +121,7 @@ sudo systemctl start kubelet
 Okay now we have reach to point where we have done all the prerequisite for initializing the kubernetes cluste
 
 Let’s run the kubernetes initialization command on only on master
-sudo kubeadm init --apiserver-advertise-address=100.0.0.1 --pod-network-cidr=10.244.0.0/16
-
+sudo kubeadm init --apiserver-advertise-address=100.0.0.1
 
 Note down kubeadm join command which we are going to use from worker node to join the master node using token.
 kubeadm join 100.0.0.1:6443 --token 45xxxxxukw2ckwwk2 \ --discovery-token-ca-cert-hash sha256:cca3de1a7aa0xxxxxxxxxe1f6a1ab8badc53e00731b2be5617d80 
